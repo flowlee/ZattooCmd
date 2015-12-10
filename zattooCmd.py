@@ -4,10 +4,10 @@
 from zapisession import ZapiSession
 import sys
 import argparse
+import ConfigParser
 
 class Main(object):
   z = None
-  # FIXME, add Zattoo Login here!
   ZattooUser = ''
   ZattooPass = ''
   ChannelList = None
@@ -15,6 +15,10 @@ class Main(object):
   def __init__(self):
     self.z = ZapiSession('/tmp/')
     self.z.init_session(self.ZattooUser, self.ZattooPass)
+    config = ConfigParser.ConfigParser()
+    config.read('ZattooCmd.cfg')
+    self.ZattooPass = config.get('General', 'password')
+    self.ZattooPass = config.get('General', 'username')
   
   def login(self):
     if self.z.login():
