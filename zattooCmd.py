@@ -16,7 +16,7 @@ class Main(object):
     self.z = ZapiSession('/tmp/')
     self.z.init_session(self.ZattooUser, self.ZattooPass)
     config = ConfigParser.ConfigParser()
-    config.read('ZattooCmd.cfg')
+    config.read('zattooCmd.cfg')
     self.ZattooPass = config.get('General', 'password')
     self.ZattooPass = config.get('General', 'username')
   
