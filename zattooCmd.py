@@ -13,19 +13,22 @@ class Main(object):
   ChannelList = None
   
   def __init__(self):
+    self.config_init();
     self.z = ZapiSession('/tmp/')
     self.z.init_session(self.ZattooUser, self.ZattooPass)
+
+  def config_init(self):
     config = ConfigParser.ConfigParser()
     config.read('zattooCmd.cfg')
     self.ZattooPass = config.get('General', 'password')
-    self.ZattooPass = config.get('General', 'username')
+    self.ZattooUser = config.get('General', 'username')
   
   def login(self):
     if self.z.login():
-        print ("Login ok")
+      print ("Login ok")
     else:
-        print ("Login not ok...")
-        sys.exit(0)
+      print ("Login not ok...")
+      sys.exit(0)
     self.z.announce()
     ChannelList = self.retrieve_channels()
   
@@ -34,8 +37,6 @@ class Main(object):
     api = '/zapi/v2/cached/channels/%s?details=False' % self.z.AccountData['account']['power_guide_hash']
     channelsData = self.z.exec_zapiCall(api, None)
     if channelsData is not None:
-      #if inst.CACHE_ENABLED:
-          #inst.persist_channels(channelsData)
       return channelsData
     return None
 
@@ -56,7 +57,6 @@ class Main(object):
         allChannels.append({
           'id': channel['id'],
           'title': channel['title'],
-           #  'image_url': self.fetch_imageUrl(channel['qualities'][0]['logo_black_84']),
           'recommend': 1 if channel['recommendations'] == True else 0,
           'favorite': 1 if flag_favorites and channel['id'] in favoritesData['favorites'] else 0})
     return allChannels
