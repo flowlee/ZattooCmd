@@ -25,9 +25,9 @@ class Main(object):
   
   def login(self):
     if self.z.login():
-      print ("Login ok")
+      print ("Login ok \n")
     else:
-      print ("Login not ok...")
+      print ("Login not ok... \n")
       sys.exit(0)
     self.z.announce()
     ChannelList = self.retrieve_channels()
@@ -47,7 +47,7 @@ class Main(object):
 
     if flag_favorites:
       api = '/zapi/channels/favorites'
-      favoritesData = self.ZapiSession.exec_zapiCall(api, None)
+      favoritesData = self.z.exec_zapiCall(api, None)
       if favoritesData is None:
         return None
 
@@ -70,25 +70,44 @@ class Main(object):
 
 def getParser():
   parser = argparse.ArgumentParser(prog='zattooCmd', usage='%(prog)s [options]')
-  parser.add_argument('-watch', help='Get URL of this channel')
+  parser.add_argument('-watch', nargs='?', help='Get URL of a specific channel')
   parser.add_argument('-getchannels', action="store_true", help='Get a list with includes every Zattoo channel')
+  parser.add_argument('-getfavorites', action="store_true", help='Get a list with includes Zattoo channels marked as favorite')
+  parser.add_argument('-watchfavorites', action="store_true", help='Get a list seperated list for all favorites')
   return parser
   
+def getChannels(args):
+  channels = []
+  if args.getchannels or args.getfavorites:
+    for i in c:
+      if i['favorite'] is 0 and args.getfavorites:
+        continue
+      else:
+        channels.append(i) 
+  return channels
+  
+
 if __name__ == "__main__":
   p = getParser()
   args = p.parse_args()
   
   m = Main()
   m.login()
-  c = m.get_allChannels()  
+  c = m.get_allChannels(flag_favorites=True)  
 
-  if args.getchannels:
-    for i in c:
-      print unicode(i['title'] + ' id \t "' + i['id'] + '"').encode('utf-8')    
+  if args.getchannels or args.getfavorites:
+    for i in getChannels(args):
+      print unicode(i['title'] + ' id \t "' + i['id'] + '"').encode('utf-8')   
+  elif args.watchfavorites:
+    args.getfavorites = True
+    for i in getChannels(args):
+      print m.watch(i)['stream']['url']
+    
   elif args.watch:
     for i in c:
       if i['id'] == args.watch:
-        print m.watch(i)
+        print m.watch(i)['stream']['url']
         break
+        
   else:
     p.print_help()
