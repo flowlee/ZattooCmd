@@ -74,6 +74,7 @@ def getParser():
   parser.add_argument('-getchannels', action="store_true", help='Get a list with includes every Zattoo channel')
   parser.add_argument('-getfavorites', action="store_true", help='Get a list with includes Zattoo channels marked as favorite')
   parser.add_argument('-watchfavorites', action="store_true", help='Get a list seperated list for all favorites')
+  parser.add_argument('-rate', nargs='?', default=1500, help='define a stream size')
   return parser
   
 def getChannels(args):
@@ -101,12 +102,19 @@ if __name__ == "__main__":
   elif args.watchfavorites:
     args.getfavorites = True
     for i in getChannels(args):
-      print m.watch(i)['stream']['url']
+      for j in m.watch(i)['stream']['watch_urls']:
+        if int(j['maxrate']) == int(args.rate):
+          print j['url']
+          break
+      #print m.watch(i)['stream']['url']
     
   elif args.watch:
     for i in c:
       if i['id'] == args.watch:
-        print m.watch(i)['stream']['url']
+        for j in m.watch(i)['stream']['watch_urls']:
+          if int(j['maxrate']) == int(args.rate):
+            print j['url']
+            break
         break
         
   else:
